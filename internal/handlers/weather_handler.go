@@ -3,19 +3,22 @@ package handlers
 import (
 	"net/http"
 
-	"example.com/address-weather-project/internal/domain"
+	"example.com/address-weather-project/internal/services"
 	"example.com/address-weather-project/internal/validation"
 	"github.com/gin-gonic/gin"
 )
 
 type WeatherHandler struct {
+	wService *services.WeatherService
 }
 
-func NewWeatherHandler() *WeatherHandler {
-	return &WeatherHandler{}
+func NewWeatherHandler(wService *services.WeatherService) *WeatherHandler {
+	return &WeatherHandler{
+		wService: wService,
+	}
 }
 
-func (handler *WeatherHandler) FetchWeatherByPostalCode(context *gin.Context) {
+func (h *WeatherHandler) FetchWeatherByPostalCode(context *gin.Context) {
 	postalCode := context.Param("postalCode")
 
 	if !validation.IsPostalCodeValid(postalCode) {
@@ -23,20 +26,11 @@ func (handler *WeatherHandler) FetchWeatherByPostalCode(context *gin.Context) {
 		return
 	}
 
-	//	TODO: Remover mock aqui e conectar com o service. O service vai compor as chamadas necessárias.
+	data, err := h.wService.FetchWeatherDataFromPostalCode(postalCode)
 
-	data := domain.WeatherResponse{
-		Weather: domain.Weather{
-			Temperature: 6,
-			Description: "Descrição aqui",
-			Humidity:    80,
-		},
-		Address: domain.Address{
-			PostalCode: postalCode,
-			City:       "Guarapuava",
-			State:      "Parana",
-			Street:     "Rua São Paulo",
-		},
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "An error ocurred."})
+		return
 	}
 
 	context.JSON(http.StatusOK, gin.H{"data": data})

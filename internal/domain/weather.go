@@ -17,3 +17,8 @@ type Address struct {
 	State      string `json:"uf"`
 	Street     string `json:"street_name"`
 }
+
+type Localization struct {
+	Latitude  string `json:"latitude"`
+	Longitude string `json:"longitude"`
+}

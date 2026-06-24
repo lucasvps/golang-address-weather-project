@@ -1,7 +1,9 @@
 package main
 
 import (
+	"example.com/address-weather-project/internal/clients"
 	"example.com/address-weather-project/internal/handlers"
+	"example.com/address-weather-project/internal/services"
 	"example.com/address-weather-project/routes"
 	"github.com/gin-gonic/gin"
 )
@@ -9,7 +11,13 @@ import (
 func main() {
 	server := gin.Default()
 
-	wHandler := handlers.NewWeatherHandler()
+	addressClient := clients.NewAddressClient()
+	weatherClient := clients.NewWeatherClient()
+	geocodingClient := clients.NewGeocodingClient()
+
+	wService := services.NewWeatherService(addressClient, weatherClient, geocodingClient)
+
+	wHandler := handlers.NewWeatherHandler(wService)
 
 	routes.RegisterRoutes(server, wHandler)
 
