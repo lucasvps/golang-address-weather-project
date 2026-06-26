@@ -26,7 +26,7 @@ func (wService *WeatherService) FetchWeatherDataFromPostalCode(postalCode string
 		return nil, err
 	}
 
-	latLongData, err := wService.geocodingClient.FetchGeocoding(domain.Address{PostalCode: postalCode, City: addressData.Street, State: addressData.City, Street: addressData.State})
+	latLongData, err := wService.geocodingClient.FetchGeocoding(addressData)
 
 	if err != nil {
 		return nil, err
