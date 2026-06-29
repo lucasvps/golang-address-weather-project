@@ -24,7 +24,7 @@ func main() {
 
 	addressClient := clients.NewAddressClient(http.DefaultClient, os.Getenv("VIA_CEP_BASE_URL"))
 	weatherClient := clients.NewWeatherClient()
-	geocodingClient := clients.NewGeocodingClient()
+	geocodingClient := clients.NewGeocodingClient(http.DefaultClient, os.Getenv("NOMINATIM_BASE_URL"))
 
 	wService := services.NewWeatherService(addressClient, weatherClient, geocodingClient)
 

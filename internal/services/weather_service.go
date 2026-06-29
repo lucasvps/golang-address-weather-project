@@ -1,6 +1,8 @@
 package services
 
-import "example.com/address-weather-project/internal/domain"
+import (
+	"example.com/address-weather-project/internal/domain"
+)
 
 type WeatherService struct {
 	addressClient   AddressClient
