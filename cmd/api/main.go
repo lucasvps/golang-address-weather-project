@@ -23,7 +23,7 @@ func main() {
 	server := gin.Default()
 
 	addressClient := clients.NewAddressClient(http.DefaultClient, os.Getenv("VIA_CEP_BASE_URL"))
-	weatherClient := clients.NewWeatherClient()
+	weatherClient := clients.NewWeatherClient(http.DefaultClient, os.Getenv("OPEN_WEATHER_BASE_URL"), os.Getenv("OPEN_WEATHER_API_KEY"))
 	geocodingClient := clients.NewGeocodingClient(http.DefaultClient, os.Getenv("NOMINATIM_BASE_URL"))
 
 	wService := services.NewWeatherService(addressClient, weatherClient, geocodingClient)

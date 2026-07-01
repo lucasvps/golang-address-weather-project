@@ -7,8 +7,14 @@ type WeatherResponse struct {
 
 type Weather struct {
 	Temperature float64 `json:"temperature"`
+	FeelsLike   float64 `json:"feels_like"`
+	TempMin     float64 `json:"temp_min"`
+	TempMax     float64 `json:"temp_max"`
 	Description string  `json:"description"`
-	Humidity    int64   `json:"humidity"`
+	Category    string  `json:"category"`
+	Humidity    int     `json:"humidity"`
+	Sunrise     int64   `json:"sunrise"`
+	Sunset      int64   `json:"sunset"`
 }
 
 type Address struct {

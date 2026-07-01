@@ -47,7 +47,7 @@ func (c *GeocodingClient) FetchGeocoding(address domain.Address) (domain.Localiz
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return domain.Localization{}, errors.New("An error occurred.")
+		return domain.Localization{}, errors.New("An error occurred while fetching the localization.")
 	}
 
 	var responseData []NominatimResponse
