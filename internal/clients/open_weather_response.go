@@ -1,11 +1,16 @@
 package clients
 
-import "example.com/address-weather-project/internal/domain"
+import (
+	"time"
+
+	"example.com/address-weather-project/internal/domain"
+)
 
 type OpenWeatherResponse struct {
-	Weather []OpenWeatherDescription `json:"weather"`
-	Main    OpenWeatherMain          `json:"main"`
-	Sys     OpenWeatherSys           `json:"sys"`
+	Weather  []OpenWeatherDescription `json:"weather"`
+	Main     OpenWeatherMain          `json:"main"`
+	Sys      OpenWeatherSys           `json:"sys"`
+	Timezone int                      `json:"timezone"`
 }
 
 type OpenWeatherDescription struct {
@@ -35,7 +40,12 @@ func (resp *OpenWeatherResponse) ToWeatherDomain() *domain.Weather {
 		Description: resp.Weather[0].Description,
 		Category:    resp.Weather[0].Main,
 		Humidity:    resp.Main.Humidity,
-		Sunrise:     resp.Sys.Sunrise,
-		Sunset:      resp.Sys.Sunset,
+		Sunrise:     formatUnixTime(resp.Sys.Sunrise, resp.Timezone),
+		Sunset:      formatUnixTime(resp.Sys.Sunset, resp.Timezone),
 	}
+}
+
+func formatUnixTime(timestamp int64, timezoneOffset int) string {
+	location := time.FixedZone("openweather-location", timezoneOffset)
+	return time.Unix(timestamp, 0).In(location).Format("15:04")
 }

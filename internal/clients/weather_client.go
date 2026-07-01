@@ -35,8 +35,6 @@ func (c *WeatherClient) FetchWeather(lat string, long string) (domain.Weather, e
 		return domain.Weather{}, err
 	}
 
-	req.Header.Add("", "")
-
 	resp, err := c.httpClient.Do(req)
 
 	if err != nil {

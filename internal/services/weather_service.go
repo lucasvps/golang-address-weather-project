@@ -1,6 +1,8 @@
 package services
 
 import (
+	"fmt"
+
 	"example.com/address-weather-project/internal/domain"
 )
 
@@ -40,8 +42,14 @@ func (wService *WeatherService) FetchWeatherDataFromPostalCode(postalCode string
 		return nil, err
 	}
 
-	return &domain.WeatherResponse{
+	responseData := domain.WeatherResponse{
 		Weather: weatherData,
 		Address: addressData,
-	}, nil
+	}
+
+	stringResponseData := responseData.ToString()
+
+	fmt.Println(stringResponseData)
+
+	return &responseData, nil
 }

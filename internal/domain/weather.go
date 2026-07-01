@@ -1,5 +1,7 @@
 package domain
 
+import "fmt"
+
 type WeatherResponse struct {
 	Weather Weather `json:"weather"`
 	Address Address `json:"address"`
@@ -13,8 +15,8 @@ type Weather struct {
 	Description string  `json:"description"`
 	Category    string  `json:"category"`
 	Humidity    int     `json:"humidity"`
-	Sunrise     int64   `json:"sunrise"`
-	Sunset      int64   `json:"sunset"`
+	Sunrise     string  `json:"sunrise"`
+	Sunset      string  `json:"sunset"`
 }
 
 type Address struct {
@@ -27,4 +29,31 @@ type Address struct {
 type Localization struct {
 	Latitude  string `json:"latitude"`
 	Longitude string `json:"longitude"`
+}
+
+func (wR *WeatherResponse) ToString() string {
+	return fmt.Sprintf(`
+		Cidade: %s
+		Rua: %s
+		Temperatura: %.1f°C
+		Sensação térmica: %.1f°C
+		Mínima: %.1f°C
+		Máxima: %.1f°C
+		Clima: %s
+		Categoria: %s
+		Umidade: %d%%
+		Nascer do sol: %s
+		Pôr do sol: %s`,
+		wR.Address.City,
+		wR.Address.Street,
+		wR.Weather.Temperature,
+		wR.Weather.FeelsLike,
+		wR.Weather.TempMin,
+		wR.Weather.TempMax,
+		wR.Weather.Description,
+		wR.Weather.Category,
+		wR.Weather.Humidity,
+		wR.Weather.Sunrise,
+		wR.Weather.Sunset,
+	)
 }
