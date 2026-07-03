@@ -39,8 +39,6 @@ func (wR *WeatherResponse) ToString() string {
 		Sensação térmica: %.1f°C
 		Mínima: %.1f°C
 		Máxima: %.1f°C
-		Clima: %s
-		Categoria: %s
 		Umidade: %d%%
 		Nascer do sol: %s
 		Pôr do sol: %s`,
@@ -50,8 +48,6 @@ func (wR *WeatherResponse) ToString() string {
 		wR.Weather.FeelsLike,
 		wR.Weather.TempMin,
 		wR.Weather.TempMax,
-		wR.Weather.Description,
-		wR.Weather.Category,
 		wR.Weather.Humidity,
 		wR.Weather.Sunrise,
 		wR.Weather.Sunset,

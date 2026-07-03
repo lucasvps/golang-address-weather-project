@@ -2,7 +2,8 @@ package clients
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 
@@ -13,10 +14,11 @@ type WeatherClient struct {
 	httpClient *http.Client
 	baseUrl    string
 	apiKey     string
+	logger     *slog.Logger
 }
 
-func NewWeatherClient(httpClient *http.Client, baseUrl string, apiKey string) *WeatherClient {
-	return &WeatherClient{httpClient: httpClient, baseUrl: baseUrl, apiKey: apiKey}
+func NewWeatherClient(httpClient *http.Client, baseUrl string, apiKey string, logger *slog.Logger) *WeatherClient {
+	return &WeatherClient{httpClient: httpClient, baseUrl: baseUrl, apiKey: apiKey, logger: logger}
 }
 
 func (c *WeatherClient) FetchWeather(lat string, long string) (domain.Weather, error) {
@@ -35,6 +37,8 @@ func (c *WeatherClient) FetchWeather(lat string, long string) (domain.Weather, e
 		return domain.Weather{}, err
 	}
 
+	c.logger.Info("fetching weather", "lat", lat, "lon", long)
+
 	resp, err := c.httpClient.Do(req)
 
 	if err != nil {
@@ -43,8 +47,10 @@ func (c *WeatherClient) FetchWeather(lat string, long string) (domain.Weather, e
 
 	defer resp.Body.Close()
 
+	c.logger.Info("fetch weather status", "status_code", resp.StatusCode, "provider", "openweather")
+
 	if resp.StatusCode != http.StatusOK {
-		return domain.Weather{}, errors.New("Could not reach the weather data")
+		return domain.Weather{}, fmt.Errorf("openweather returned non-ok status %d", resp.StatusCode)
 	}
 
 	var responseData OpenWeatherResponse
@@ -52,6 +58,7 @@ func (c *WeatherClient) FetchWeather(lat string, long string) (domain.Weather, e
 	err = json.NewDecoder(resp.Body).Decode(&responseData)
 
 	if err != nil {
+		c.logger.Error("error decoding weather data", "error", err)
 		return domain.Weather{}, err
 	}
 

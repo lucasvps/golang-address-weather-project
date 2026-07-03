@@ -3,6 +3,8 @@ package clients
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 
@@ -12,10 +14,11 @@ import (
 type GeocodingClient struct {
 	httpClient *http.Client
 	baseUrl    string
+	logger     *slog.Logger
 }
 
-func NewGeocodingClient(httpClient *http.Client, baseUrl string) *GeocodingClient {
-	return &GeocodingClient{httpClient: httpClient, baseUrl: baseUrl}
+func NewGeocodingClient(httpClient *http.Client, baseUrl string, logger *slog.Logger) *GeocodingClient {
+	return &GeocodingClient{httpClient: httpClient, baseUrl: baseUrl, logger: logger}
 }
 
 func (c *GeocodingClient) FetchGeocoding(address domain.Address) (domain.Localization, error) {
@@ -38,6 +41,8 @@ func (c *GeocodingClient) FetchGeocoding(address domain.Address) (domain.Localiz
 
 	req.Header.Add("User-Agent", "address-weather-project/1.0")
 
+	c.logger.Info("fetching geocoding", "address", address)
+
 	resp, err := c.httpClient.Do(req)
 
 	if err != nil {
@@ -46,8 +51,10 @@ func (c *GeocodingClient) FetchGeocoding(address domain.Address) (domain.Localiz
 
 	defer resp.Body.Close()
 
+	c.logger.Info("fetch geocoding status", "postal_code", address.PostalCode, "status_code", resp.StatusCode, "provider", "nominatim")
+
 	if resp.StatusCode != http.StatusOK {
-		return domain.Localization{}, errors.New("An error occurred while fetching the localization.")
+		return domain.Localization{}, fmt.Errorf("nominatim returned non-ok status %d", resp.StatusCode)
 	}
 
 	var responseData []NominatimResponse
@@ -55,11 +62,12 @@ func (c *GeocodingClient) FetchGeocoding(address domain.Address) (domain.Localiz
 	err = json.NewDecoder(resp.Body).Decode(&responseData)
 
 	if err != nil {
+		c.logger.Error("error decoding geocoding data", "error", err)
 		return domain.Localization{}, err
 	}
 
 	if len(responseData) == 0 {
-		return domain.Localization{}, errors.New("We cannot found the localization.")
+		return domain.Localization{}, errors.New("geocoding returned no results")
 	}
 
 	return domain.Localization{

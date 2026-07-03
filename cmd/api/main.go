@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 
@@ -22,11 +23,14 @@ func main() {
 
 	server := gin.Default()
 
-	addressClient := clients.NewAddressClient(http.DefaultClient, os.Getenv("VIA_CEP_BASE_URL"))
-	weatherClient := clients.NewWeatherClient(http.DefaultClient, os.Getenv("OPEN_WEATHER_BASE_URL"), os.Getenv("OPEN_WEATHER_API_KEY"))
-	geocodingClient := clients.NewGeocodingClient(http.DefaultClient, os.Getenv("NOMINATIM_BASE_URL"))
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
 
-	wService := services.NewWeatherService(addressClient, weatherClient, geocodingClient)
+	addressClient := clients.NewAddressClient(http.DefaultClient, os.Getenv("VIA_CEP_BASE_URL"), logger)
+	weatherClient := clients.NewWeatherClient(http.DefaultClient, os.Getenv("OPEN_WEATHER_BASE_URL"), os.Getenv("OPEN_WEATHER_API_KEY"), logger)
+	geocodingClient := clients.NewGeocodingClient(http.DefaultClient, os.Getenv("NOMINATIM_BASE_URL"), logger)
+
+	wService := services.NewWeatherService(addressClient, weatherClient, geocodingClient, logger)
 
 	wHandler := handlers.NewWeatherHandler(wService)
 
