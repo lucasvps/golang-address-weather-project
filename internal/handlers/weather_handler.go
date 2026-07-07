@@ -3,16 +3,15 @@ package handlers
 import (
 	"net/http"
 
-	"example.com/address-weather-project/internal/services"
 	"example.com/address-weather-project/internal/validation"
 	"github.com/gin-gonic/gin"
 )
 
 type WeatherHandler struct {
-	wService *services.WeatherService
+	wService WeatherService
 }
 
-func NewWeatherHandler(wService *services.WeatherService) *WeatherHandler {
+func NewWeatherHandler(wService WeatherService) *WeatherHandler {
 	return &WeatherHandler{
 		wService: wService,
 	}

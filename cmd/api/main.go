@@ -42,5 +42,3 @@ func main() {
 		panic("Ocorreu um erro ao iniciar o servidor.")
 	}
 }
-
-//Get "viacep.com.br/ws/85035000/json": unsupported protocol scheme ""
