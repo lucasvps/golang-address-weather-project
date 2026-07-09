@@ -29,13 +29,44 @@ func TestFetchWeatherByPostalCode(t *testing.T) {
 	router := gin.New()
 	router.GET("/weather/:postalCode", handler.FetchWeatherByPostalCode)
 
-	// ACT: CRIAR RECORDER E REQUEST FAKES PARA CAPTURAR E ENVIAR AS CHAMADAS.
-	recorder := httptest.NewRecorder()
-	request, _ := http.NewRequest(http.MethodGet, "/weather/", nil)
-	router.ServeHTTP(recorder, request)
+	tableDrivenTests := []struct {
+		name           string
+		path           string
+		expectedStatus int
+	}{
+		{
+			name:           "invalid postal code bigger than 9 char",
+			path:           "/weather/85035321893218",
+			expectedStatus: http.StatusBadRequest,
+		},
+		{
+			name:           "invalid postal code smaller than 9 char",
+			path:           "/weather/8492",
+			expectedStatus: http.StatusBadRequest,
+		},
+		{
+			name:           "missing postal code",
+			path:           "/weather/",
+			expectedStatus: http.StatusNotFound,
+		},
+		{
+			name:           "valid postal code",
+			path:           "/weather/85035000",
+			expectedStatus: http.StatusOK,
+		},
+	}
 
-	// ASSERT: VERIFICA RESULTADO
-	if recorder.Code != http.StatusNotFound {
-		t.Errorf("expected status %d, got %d", http.StatusNotFound, recorder.Code)
+	for _, testCase := range tableDrivenTests {
+		t.Run(testCase.name, func(t *testing.T) {
+			// ACT: CRIAR RECORDER E REQUEST FAKES PARA CAPTURAR E ENVIAR AS CHAMADAS.
+			recorder := httptest.NewRecorder()
+			request, _ := http.NewRequest(http.MethodGet, testCase.path, nil)
+			router.ServeHTTP(recorder, request)
+
+			// ASSERT: VERIFICA RESULTADO
+			if recorder.Code != testCase.expectedStatus {
+				t.Errorf("expected status %d, got %d", testCase.expectedStatus, recorder.Code)
+			}
+		})
 	}
 }
