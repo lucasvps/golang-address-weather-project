@@ -22,14 +22,21 @@ func NewWeatherClient(httpClient *http.Client, baseUrl string, apiKey string, lo
 }
 
 func (c *WeatherClient) FetchWeather(lat string, long string) (domain.Weather, error) {
-	params := url.Values{}
+	parsedURL, err := url.Parse(c.baseUrl)
 
-	params.Add("lat", lat)
-	params.Add("lon", long)
-	params.Add("appid", c.apiKey)
-	params.Add("units", "metric")
+	if err != nil {
+		return domain.Weather{}, err
+	}
 
-	requestUrl := c.baseUrl + params.Encode()
+	query := parsedURL.Query()
+
+	query.Set("lat", lat)
+	query.Set("lon", long)
+	query.Set("appid", c.apiKey)
+	query.Set("units", "metric")
+
+	parsedURL.RawQuery = query.Encode()
+	requestUrl := parsedURL.String()
 
 	req, err := http.NewRequest(http.MethodGet, requestUrl, nil)
 

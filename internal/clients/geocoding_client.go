@@ -22,16 +22,23 @@ func NewGeocodingClient(httpClient *http.Client, baseUrl string, logger *slog.Lo
 }
 
 func (c *GeocodingClient) FetchGeocoding(address domain.Address) (domain.Localization, error) {
-	params := url.Values{}
+	parsedURL, err := url.Parse(c.baseUrl)
 
-	params.Add("city", address.City)
-	params.Add("postalcode", address.PostalCode)
-	params.Add("street", address.Street)
-	params.Add("country", "Brazil")
-	params.Add("format", "json")
-	params.Add("limit", "1")
+	if err != nil {
+		return domain.Localization{}, err
+	}
 
-	requestUrl := c.baseUrl + "?" + params.Encode()
+	query := parsedURL.Query()
+
+	query.Set("city", address.City)
+	query.Set("postalcode", address.PostalCode)
+	query.Set("street", address.Street)
+	query.Set("country", "Brazil")
+	query.Set("format", "json")
+	query.Set("limit", "1")
+
+	parsedURL.RawQuery = query.Encode()
+	requestUrl := parsedURL.String()
 
 	req, err := http.NewRequest(http.MethodGet, requestUrl, nil)
 
