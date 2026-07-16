@@ -3,6 +3,7 @@ package services
 import (
 	"log/slog"
 
+	"example.com/address-weather-project/internal/cache"
 	"example.com/address-weather-project/internal/domain"
 )
 
@@ -10,21 +11,29 @@ type WeatherService struct {
 	addressClient   AddressClient
 	weatherClient   WeatherClient
 	geocodingClient GeocodingClient
+	weatherCache    *cache.WeatherCache
 	logger          *slog.Logger
 }
 
-func NewWeatherService(addressClient AddressClient, weatherClient WeatherClient, geocodingClient GeocodingClient, logger *slog.Logger) *WeatherService {
+func NewWeatherService(addressClient AddressClient, weatherClient WeatherClient, geocodingClient GeocodingClient, weatherCache *cache.WeatherCache, logger *slog.Logger) *WeatherService {
 	return &WeatherService{
 		addressClient:   addressClient,
 		weatherClient:   weatherClient,
 		geocodingClient: geocodingClient,
+		weatherCache:    weatherCache,
 		logger:          logger,
 	}
 }
 
 func (wService *WeatherService) FetchWeatherDataFromPostalCode(postalCode string) (*domain.WeatherResponse, error) {
-
 	wService.logger.Info("started weather flow", "postal_code", postalCode)
+
+	data := wService.weatherCache.Get(postalCode)
+
+	if data != nil {
+		wService.logger.Info("found weather data on cache", "postal_code", postalCode)
+		return data, nil
+	}
 
 	addressData, err := wService.addressClient.FetchAddress(postalCode)
 
@@ -51,6 +60,10 @@ func (wService *WeatherService) FetchWeatherDataFromPostalCode(postalCode string
 		Weather: weatherData,
 		Address: addressData,
 	}
+
+	wService.logger.Info("saving weather data on cache", "postal_code", postalCode)
+
+	wService.weatherCache.Set(postalCode, &responseData)
 
 	wService.logger.Info("finished weather flow", "postal_code", postalCode)
 

@@ -5,7 +5,9 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"time"
 
+	"example.com/address-weather-project/internal/cache"
 	"example.com/address-weather-project/internal/clients"
 	"example.com/address-weather-project/internal/handlers"
 	"example.com/address-weather-project/internal/services"
@@ -29,8 +31,9 @@ func main() {
 	addressClient := clients.NewAddressClient(http.DefaultClient, os.Getenv("VIA_CEP_BASE_URL"), logger)
 	weatherClient := clients.NewWeatherClient(http.DefaultClient, os.Getenv("OPEN_WEATHER_BASE_URL"), os.Getenv("OPEN_WEATHER_API_KEY"), logger)
 	geocodingClient := clients.NewGeocodingClient(http.DefaultClient, os.Getenv("NOMINATIM_BASE_URL"), logger)
+	weatherCache := cache.NewWeatherCache(time.Minute * 10)
 
-	wService := services.NewWeatherService(addressClient, weatherClient, geocodingClient, logger)
+	wService := services.NewWeatherService(addressClient, weatherClient, geocodingClient, weatherCache, logger)
 
 	wHandler := handlers.NewWeatherHandler(wService)
 
