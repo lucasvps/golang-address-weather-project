@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterRoutes(server *gin.Engine, wHandler *handlers.WeatherHandler) {
+func RegisterRoutes(server *gin.Engine, wHandler *handlers.WeatherHandler, aHandler *handlers.AddressHandler) {
 	server.GET("/weather/:postalCode", wHandler.FetchWeatherByPostalCode)
+	server.GET("/address/:postalCode", aHandler.FetchAddressFromPostalCode)
 }

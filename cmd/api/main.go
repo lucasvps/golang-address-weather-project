@@ -34,10 +34,13 @@ func main() {
 	weatherCache := cache.NewWeatherCache(time.Minute * 10)
 
 	wService := services.NewWeatherService(addressClient, weatherClient, geocodingClient, weatherCache, logger)
+	addressService := services.NewAddressService(addressClient, logger)
 
 	wHandler := handlers.NewWeatherHandler(wService)
 
-	routes.RegisterRoutes(server, wHandler)
+	aHandler := handlers.NewAddressHandler(addressService)
+
+	routes.RegisterRoutes(server, wHandler, aHandler)
 
 	err = server.Run(":8080")
 
