@@ -61,16 +61,32 @@ GET http://localhost:8080/weather/85035000
 
 ## Environment variables
 
-Create a `.env` file in the project root:
+Create your local environment file from the provided example:
+
+```bash
+cp .env.example .env
+```
+
+On PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Then set your OpenWeather API key in `.env`:
 
 ```env
-VIA_CEP_BASE_URL=https://viacep.com.br/ws/
-NOMINATIM_BASE_URL=https://nominatim.openstreetmap.org/search
-OPEN_WEATHER_BASE_URL=https://api.openweathermap.org/data/2.5/weather
 OPEN_WEATHER_API_KEY=your_openweather_api_key
 ```
 
-`OPEN_WEATHER_API_KEY` is required. ViaCEP and Nominatim do not require API keys.
+| Variable | Required | Description |
+| --- | --- | --- |
+| `VIA_CEP_BASE_URL` | Yes | Base URL used to retrieve address information from ViaCEP |
+| `NOMINATIM_BASE_URL` | Yes | Base URL used to geocode addresses with Nominatim |
+| `OPEN_WEATHER_BASE_URL` | Yes | Base URL used to retrieve current weather data |
+| `OPEN_WEATHER_API_KEY` | Yes | API key used to authenticate with OpenWeather |
+
+The `.env.example` file contains safe example values and is versioned with the project. The `.env` file contains local configuration and secrets and must not be committed.
 
 ## Running locally
 
@@ -88,6 +104,34 @@ With Air hot reload:
 
 ```bash
 air
+```
+
+## Running with Docker
+
+Build the image:
+
+```bash
+docker build -t address-weather-api .
+```
+
+Run the container using your local environment file:
+
+```bash
+docker run --env-file .env -p 8080:8080 address-weather-api
+```
+
+The API will be available at:
+
+```text
+http://localhost:8080
+```
+
+The `--env-file` option reads `.env` from the host and injects its values as environment variables. The file is not copied into the container image.
+
+Test the weather endpoint:
+
+```bash
+curl http://localhost:8080/weather/85035000
 ```
 
 ## Tests
@@ -126,7 +170,5 @@ Nominatim public usage requires a custom `User-Agent` and should not be used hea
 
 - Improve error responses
 - Add service-level tests with fake clients
-- Add in-memory cache with TTL
-- Add Dockerfile
 - Add basic rate limiting
 - Add API documentation
