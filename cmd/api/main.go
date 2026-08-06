@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"log/slog"
 	"net/http"
 	"os"
@@ -17,11 +16,7 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
-
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	_ = godotenv.Load()
 
 	server := gin.Default()
 
@@ -42,7 +37,7 @@ func main() {
 
 	routes.RegisterRoutes(server, wHandler, aHandler)
 
-	err = server.Run(":8080")
+	err := server.Run(":8080")
 
 	if err != nil {
 		panic("Ocorreu um erro ao iniciar o servidor.")
